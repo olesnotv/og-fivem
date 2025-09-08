@@ -1,22 +1,30 @@
-local ESX = exports["es_extended"]:getSharedObject()
-
-RegisterNetEvent("myserver:giveWeapon")
-AddEventHandler("myserver:giveWeapon", function(weaponName, weaponAmmo)
-    local xPlayer = ESX.GetPlayerFromId(source)
-
-    if xPlayer then
-        local exists = false
-        for _, weapon in ipairs(Config.armory.weapon) do
-            if weapon.name == weaponName then
-                exists = true
-                break
-            end
-        end
-
-        if exists then
-            xPlayer.addWeapon(weaponName, weaponAmmo) -- donne l’arme avec 250 munitions
+ESX.RegisterServerCallback('getHighestRankPlayer', function(source, cb, jobName)
+    MySQL.Async.fetchAll([[
+        SELECT users.name, job_grades.label, job_grades.grade
+        FROM users
+        JOIN job_grades ON users.job = job_grades.job_name AND users.job_grade = job_grades.grade
+        WHERE users.job = @job
+        ORDER BY job_grades.grade DESC
+        LIMIT 1
+    ]], {
+        ['@job'] = jobName
+    }, function(result)
+        if result[1] then
+            cb({
+                name = result[1].name,
+                gradeLabel = result[1].label,
+                grade = result[1].grade
+            })
         else
-            print(("[myserver] %s a tenté d'obtenir une arme invalide (%s)"):format(GetPlayerName(source), weaponName))
+            cb(nil)
         end
-    end
+    end)
+end)
+
+ESX.RegisterServerCallback('myScript:getPoliceBankMoney', function(source, cb)
+    MySQL.Async.fetchScalar('SELECT money FROM addon_account WHERE name = @name', {
+        ['@name'] = 'society_police'
+    }, function(money)
+        cb(money)
+    end)
 end)

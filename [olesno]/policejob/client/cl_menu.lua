@@ -128,18 +128,34 @@ function menuArmory()
 end
 
 function menuOffice()
-    local menuOffice = RageUI.CreateMenu("LSPD", "Gestion de société")
-    RageUI.Visible(menuOffice, not RageUI.Visible(menuOffice))
-    while menuOffice do 
-        Citizen.Wait(0)
-        RageUI.IsVisible(menuOffice,true,true,true,function()
-            RageUI.Separator("Propriétaire : ~g~Etat")
-        end,function()
-        end)
-        if not RageUI.Visible(menuOffice) then
-            menuOffice=RMenu:DeleteType("LSPD", true)
+    ESX.TriggerServerCallback('getHighestRankPlayer', function(player)
+        local boss = player or {name = "Aucun", gradeLabel = ""}
+    end, job)
+    ESX.TriggerServerCallback('myScript:getPoliceBankMoney', function(money)
+        local societyaccount = money
+    end)
+    
+    
+    local rank = ESX.PlayerData.job.grade
+    if rank == 4 then
+        local menuOffice = RageUI.CreateMenu("LSPD", "Gestion de société")
+        RageUI.Visible(menuOffice, not RageUI.Visible(menuOffice))
+        while menuOffice do 
+            Citizen.Wait(0)
+            RageUI.IsVisible(menuOffice,true,true,true,function()
+                RageUI.Separator("Captain : ~g~" .. boss.name)
+            end,function()
+            end)
+            if societyaccount > 0 then
+                RageUI.Separator("Compte de la société ~g~" .. societyaccount .. "$")
+            else
+                RageUI.Separator("Compte de la société ~r~" .. societyaccount .. "$")
+            if not RageUI.Visible(menuOffice) then
+                menuOffice=RMenu:DeleteType("LSPD", true)
+            end
         end
-    end
+    else
+        ESX.ShowNotification("Vous n\'avez pas les permissions pour ouvrir l\'interface de gestion")
 end
 
 function menuClothe()
