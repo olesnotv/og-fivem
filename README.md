@@ -1,3 +1,2 @@
-All scripts made by Olesno, for an OG experience
-
-Built for original fivem experience
+# Ce projet n'est plus maintenu
+> Au vue de la sortie de GTA VI et des inconnus liés à son arrivée
